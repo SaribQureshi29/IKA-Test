@@ -412,8 +412,8 @@ def _hash_password(password: str) -> str:
 
 
 # Single admin account only (no other admin accounts).
-_ADMIN_USERNAME = "ika_admin_user@caremiles.app"
-_ADMIN_PASSWORD = "Muru314714"
+_ADMIN_USERNAME = get_secret("ADMINEMAIL")
+_ADMIN_PASSWORD = get_secret("ADMINPASSWORD")
 
 
 def _seed_admin_if_needed():
