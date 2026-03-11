@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IKA SSO Chat</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <!-- Login Page -->
+  <div class="login-container" id="loginContainer">
+    <div class="login-header">
+      <div class="logo">
+        <div class="logo-icon">
+          <i class="fas fa-robot"></i>
+        </div>
+        <div class="logo-text">
+          <h1>IKA Chat</h1>
+        </div>
+      </div>
+      <p>Enterprise Assistant</p>
+    </div>
+    
+    <div class="login-content">
+      <div class="welcome-text">
+        <h2>Welcome</h2>
+        <p>Sign in with Azure AD to access the secure enterprise chatbot</p>
+      </div>
+      
+      <div class="user-info" id="userInfo">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <div class="user-details">
+          <h3 id="userName">User</h3>
+          <p id="userStatus">Status</p>
+        </div>
+        <a href="#" id="adminPanelBtn" class="btn btn-admin hidden">
+          <i class="fas fa-cog"></i> Admin Panel
+        </a>
+      </div>
+      
+      <button id="loginBtn" class="btn btn-primary">
+        <i class="fas fa-sign-in-alt"></i> Sign in with Azure AD
+      </button>
+      
+      <button id="logoutBtn" class="btn btn-outline hidden">
+        <i class="fas fa-sign-out-alt"></i> Sign Out
+      </button>
+      
+      <div id="status" class="status"></div>
+    </div>
+    
+    <div class="footer">
+      <p>Secured by Azure Active Directory</p>
+    </div>
+  </div>
+
+  <!-- Chat Icon -->
+  <div class="chat-icon-container" id="chatIcon">
+    <button class="chat-icon-btn" id="chatIconBtn">
+      <i class="fas fa-comment-dots"></i>
+    </button>
+  </div>
+
+  <!-- Chat Modal -->
+  <div class="chat-modal" id="chatModal">
+    <div class="chat-content">
+      <div class="chat-header">
+        <h2><i class="fas fa-robot"></i> IKA Assistant</h2>
+        <button class="close-btn" id="closeChatBtn">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="chat-body" id="chatBody">
+        <!-- Messages go here -->
+        <div class="message bot" id="welcomeMessage">
+          <div class="avatar">
+            <i class="fas fa-robot"></i>
+          </div>
+          <div class="message-content">
+            <div class="bubble">
+              Hello! I'm your IKA assistant. I can help you with policies, procedures, and domain-specific information.
+            </div>
+            <div class="meta">Just now</div>
+          </div>
+        </div>
+        
+        <!-- Typing Indicator -->
+        <div class="typing" id="typingIndicator">
+          <div class="avatar">
+            <i class="fas fa-robot"></i>
+          </div>
+          <div class="typing-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div class="typing-text">Thinking...</div>
+        </div>
+        
+        <!-- References -->
+        <div class="references hidden" id="referencesSection">
+          <h4><i class="fas fa-file-alt"></i> Answer sourced from these documents</h4>
+          <div class="ref-list" id="referencesList"></div>
+        </div>
+      </div>
+      
+      <div class="chat-input">
+        <div class="input-wrapper">
+          <textarea 
+            id="questionInput" 
+            placeholder="Type your question... (Enter to send, Shift+Enter for new line)"
+            rows="1"
+            disabled
+          ></textarea>
+          <button id="sendBtn" class="send-btn" disabled>
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+        <div id="chatStatus" class="chat-status"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>

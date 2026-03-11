@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel – IKA Chat</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(145deg, #f0f4f8 0%, #e2e8f0 100%); min-height: 100vh; color: #334155; }
+    .admin-page { max-width: 720px; margin: 0 auto; padding: 32px 24px; }
+    .admin-login-wrap { display: flex; align-items: center; justify-content: center; min-height: 80vh; }
+    .admin-login { display: none; }
+    .admin-login.visible { display: block; width: 100%; }
+    .admin-panel { display: none; }
+    .admin-panel.visible { display: block; }
+    .card { background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04); overflow: hidden; }
+    .admin-login .card { max-width: 400px; margin: 0 auto; }
+    .admin-login .login-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 28px 24px; text-align: center; }
+    .admin-login .login-header h1 { margin: 0; font-size: 22px; font-weight: 600; }
+    .admin-login .login-header p { margin: 6px 0 0; opacity: 0.95; font-size: 14px; }
+    .admin-login .login-content { padding: 28px 24px; }
+    .admin-login .login-content label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px; }
+    .admin-login input[type="text"], .admin-login input[type="password"] { width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 15px; margin-bottom: 16px; transition: border-color 0.2s; }
+    .admin-login input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.15); }
+    .admin-login .btn-primary { width: 100%; padding: 14px; font-size: 15px; font-weight: 600; border-radius: 10px; margin-top: 4px; }
+    .admin-login .back-link { display: block; text-align: center; margin-top: 20px; color: #667eea; font-size: 14px; text-decoration: none; }
+    .admin-login .back-link:hover { text-decoration: underline; }
+    .admin-status { margin-top: 12px; padding: 10px 12px; border-radius: 8px; font-size: 14px; display: none; }
+    .admin-status.visible { display: block; }
+    .admin-status.success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+    .admin-status.error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .admin-header { background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%); color: #fff; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; border-radius: 16px 16px 0 0; }
+    .admin-header h2 { margin: 0; font-size: 20px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+    .btn-logout { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); padding: 10px 18px; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.2s; }
+    .btn-logout:hover { background: rgba(255,255,255,0.25); }
+    .admin-body { padding: 24px; }
+    .section { background: #f8fafc; border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
+    .section h3 { margin: 0 0 6px; font-size: 16px; font-weight: 600; color: #1e293b; display: flex; align-items: center; gap: 8px; }
+    .section-desc { font-size: 13px; color: #64748b; margin-bottom: 14px; line-height: 1.5; }
+    .form-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 8px; }
+    .form-row input { flex: 1; min-width: 140px; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; }
+    .form-row input:focus { outline: none; border-color: #667eea; }
+    .btn-add { padding: 10px 20px; background: #667eea; color: #fff; border: none; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+    .btn-add:hover { background: #5a6fd8; }
+    .btn-add.green { background: #10b981; }
+    .btn-add.green:hover { background: #059669; }
+    .list { list-style: none; margin: 0 0 12px; padding: 0; }
+    .list li { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #fff; border-radius: 8px; margin-bottom: 6px; font-size: 14px; border: 1px solid #e2e8f0; }
+    .list li span { word-break: break-all; color: #334155; }
+    .list li button { background: #ef4444; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; flex-shrink: 0; margin-left: 10px; transition: background 0.2s; }
+    .list li button:hover { background: #dc2626; }
+    .msg { padding: 10px 14px; border-radius: 8px; font-size: 14px; margin-top: 10px; display: none; }
+    .msg.visible { display: block; }
+    .msg.success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+    .msg.error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .msg.info { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+    .provision-grid { display: grid; gap: 12px; }
+    .provision-grid label { font-size: 13px; font-weight: 600; color: #475569; display: block; margin-bottom: 4px; }
+    .provision-grid input { width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; }
+    .provision-grid input:focus { outline: none; border-color: #667eea; }
+    .provision-grid .hint { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+    .add-admin-email-wrap { position: relative; }
+    .admin-suggestions { position: absolute; left: 0; right: 0; top: 100%; margin-top: 2px; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-height: 220px; overflow-y: auto; z-index: 100; display: none; }
+    .admin-suggestions.visible { display: block; }
+    .admin-suggestions .suggestion-item { padding: 10px 14px; font-size: 14px; cursor: pointer; border-bottom: 1px solid #f1f5f9; color: #334155; transition: background 0.15s; }
+    .admin-suggestions .suggestion-item:last-child { border-bottom: none; }
+    .admin-suggestions .suggestion-item:hover { background: #f1f5f9; }
+    .admin-suggestions .suggestion-email { font-weight: 500; }
+    .admin-suggestions .suggestion-name { font-size: 12px; color: #64748b; margin-top: 2px; }
+    .footer-link { text-align: center; margin-top: 24px; }
+    .footer-link a { color: #667eea; font-size: 14px; text-decoration: none; }
+    .footer-link a:hover { text-decoration: underline; }
+    /* Custom confirmation modal – matches app theme */
+    .confirm-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.5); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 20px; box-sizing: border-box; backdrop-filter: blur(4px); }
+    .confirm-overlay.visible { display: flex; }
+    .confirm-dialog { background: #fff; border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-width: 400px; width: 100%; overflow: hidden; animation: confirmPop 0.2s ease-out; }
+    @keyframes confirmPop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .confirm-dialog .confirm-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 18px 24px; display: flex; align-items: center; gap: 12px; }
+    .confirm-dialog .confirm-header i { font-size: 22px; opacity: 0.95; }
+    .confirm-dialog .confirm-header h3 { margin: 0; font-size: 18px; font-weight: 600; }
+    .confirm-dialog .confirm-body { padding: 24px; color: #334155; font-size: 15px; line-height: 1.6; }
+    .confirm-dialog .confirm-actions { display: flex; gap: 12px; justify-content: flex-end; padding: 0 24px 24px; }
+    .confirm-dialog .btn-confirm { padding: 10px 20px; background: #ef4444; color: #fff; border: none; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; transition: background 0.2s; }
+    .confirm-dialog .btn-confirm:hover { background: #dc2626; }
+    .confirm-dialog .btn-cancel { padding: 10px 20px; background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s; }
+    .confirm-dialog .btn-cancel:hover { background: #e2e8f0; color: #334155; }
+  </style>
+</head>
+<body>
+  <!-- Confirmation modal -->
+  <div id="confirmOverlay" class="confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="confirm-dialog" onclick="event.stopPropagation()">
+      <div class="confirm-header">
+        <i class="fas fa-exclamation-circle"></i>
+        <h3 id="confirmTitle">Confirm</h3>
+      </div>
+      <div class="confirm-body">
+        <p id="confirmMessage"></p>
+      </div>
+      <div class="confirm-actions">
+        <button type="button" id="confirmCancelBtn" class="btn-cancel">Cancel</button>
+        <button type="button" id="confirmYesBtn" class="btn-confirm">Yes, remove</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-page">
+    <!-- Admin Login -->
+    <div id="adminLogin" class="admin-login visible">
+      <div class="admin-login-wrap">
+        <div class="card">
+          <div class="login-header">
+            <h1><i class="fas fa-shield-halved"></i> Admin</h1>
+            <p>IKA Chat – Sign in to manage users and SharePoint</p>
+          </div>
+          <div class="login-content">
+            <label for="adminUsername">Email / Username</label>
+            <input type="text" id="adminUsername" placeholder="Enter your admin email" autocomplete="username">
+            <label for="adminPassword">Password</label>
+            <input type="password" id="adminPassword" placeholder="Enter your password" autocomplete="current-password">
+            <button type="button" id="adminLoginBtn" class="btn btn-primary">
+              <i class="fas fa-sign-in-alt"></i> Sign in
+            </button>
+            <div id="adminLoginStatus" class="admin-status"></div>
+            <a href="/" class="back-link">&larr; Back to Chat</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="admin-panel">
+      <div class="card">
+        <div class="admin-header">
+          <h2><i class="fas fa-shield-halved"></i> Admin Panel</h2>
+          <a href="/" class="btn-logout" style="text-decoration:none; color:inherit; display:inline-flex; align-items:center; gap:8px;"><i class="fas fa-arrow-left"></i> Back to Chat</a>
+        </div>
+        <div class="admin-body">
+          <div class="section">
+            <p class="section-desc" style="display:none">Create a new user in Entra. Enter username (organization domain is configured). Set the user’s password. If the user already exists, you’ll see an error.</p>
+            <h3><i class="fas fa-user-shield"></i> Add admin user</h3>
+            <p class="section-desc">Add an existing user as admin by email. The user must exist in Azure AD; they will access the panel with their Azure sign-in (no password needed here).</p>
+            <div class="provision-grid">
+              <div class="add-admin-email-wrap">
+                <label for="addAdminUsername">Email (must exist in Azure AD)</label>
+                <input type="email" id="addAdminUsername" placeholder="e.g. user@caremiles.app" autocomplete="off">
+                <div id="addAdminSuggestions" class="admin-suggestions" role="listbox" aria-label="User suggestions"></div>
+                <div class="hint">We will verify this email exists in your tenant before adding. Start typing to see matching users.</div>
+              </div>
+              <div style="margin-top: 4px;">
+                <button type="button" id="addAdminBtn" class="btn-add"><i class="fas fa-user-plus"></i> Add admin</button>
+              </div>
+            </div>
+            <div id="addAdminMsg" class="msg"></div>
+            <p class="section-desc" style="margin-top: 18px; margin-bottom: 8px;"><strong>Current admins</strong> (super admin can remove; removed user loses access immediately):</p>
+            <ul id="adminsList" class="list"></ul>
+            <div id="adminsMsg" class="msg"></div>
+          </div>
+
+          <div class="section">
+            <h3><i class="fas fa-check-circle"></i> SharePoint Whitelist</h3>
+            <p class="section-desc">Sites allowed for ingest. Database is the source of truth.</p>
+            <ul id="whitelistList" class="list"></ul>
+            <div class="form-row">
+              <input type="text" id="whitelistInput" placeholder="https://tenant.sharepoint.com/sites/SiteName">
+              <button type="button" id="whitelistAddBtn" class="btn-add green"><i class="fas fa-plus"></i> Add</button>
+            </div>
+            <div id="whitelistMsg" class="msg"></div>
+          </div>
+
+          <div class="section">
+            <h3><i class="fas fa-ban"></i> SharePoint Blacklist</h3>
+            <p class="section-desc">Sites blocked from ingest. Database is the source of truth.</p>
+            <ul id="blacklistList" class="list"></ul>
+            <div class="form-row">
+              <input type="text" id="blacklistInput" placeholder="https://tenant.sharepoint.com/sites/BlockedSite">
+              <button type="button" id="blacklistAddBtn" class="btn-add green"><i class="fas fa-plus"></i> Add</button>
+            </div>
+            <div id="blacklistMsg" class="msg"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var API = window.location.origin;
+      var TOKEN_KEY = 'ika_admin_token';
+      var confirmResolve = null;
+
+      function showConfirmModal(message) {
+        return new Promise(function(resolve) {
+          confirmResolve = resolve;
+          document.getElementById('confirmMessage').textContent = message;
+          document.getElementById('confirmOverlay').classList.add('visible');
+        });
+      }
+      function closeConfirmModal(result) {
+        document.getElementById('confirmOverlay').classList.remove('visible');
+        if (confirmResolve) { confirmResolve(result); confirmResolve = null; }
+      }
+
+      (function wireConfirmModal() {
+        var overlay = document.getElementById('confirmOverlay');
+        var cancelBtn = document.getElementById('confirmCancelBtn');
+        var yesBtn = document.getElementById('confirmYesBtn');
+        if (cancelBtn) cancelBtn.addEventListener('click', function() { closeConfirmModal(false); });
+        if (yesBtn) yesBtn.addEventListener('click', function() { closeConfirmModal(true); });
+        if (overlay) overlay.addEventListener('click', function(e) { if (e.target === overlay) closeConfirmModal(false); });
+      })();
+
+      function getToken() { return sessionStorage.getItem(TOKEN_KEY); }
+      function setToken(t) { if (t) sessionStorage.setItem(TOKEN_KEY, t); else sessionStorage.removeItem(TOKEN_KEY); }
+      function authHeaders() {
+        var t = getToken();
+        return t ? { 'Content-Type': 'application/json', 'X-Admin-Token': t } : { 'Content-Type': 'application/json' };
+      }
+
+      function detailText(d) {
+        if (d == null || d === undefined) return '';
+        if (typeof d === 'string') return d;
+        if (Array.isArray(d)) return d.map(function(x) { return typeof x === 'string' ? x : x.msg || JSON.stringify(x); }).join(' ');
+        return String(d);
+      }
+
+      function showLoginStatus(msg, type) {
+        var el = document.getElementById('adminLoginStatus');
+        if (el) { el.textContent = msg; el.className = 'admin-status visible' + (type ? ' ' + type : ''); }
+      }
+
+      function showPanel() {
+        var login = document.getElementById('adminLogin');
+        var panel = document.getElementById('adminPanel');
+        if (login) { login.classList.remove('visible'); login.style.display = 'none'; }
+        if (panel) { panel.classList.add('visible'); panel.style.display = 'block'; }
+        loadAdmins();
+        loadWhitelist();
+        loadBlacklist();
+      }
+
+      var SUPER_ADMIN_EMAIL = 'ika_admin_user@caremiles.app';
+      function loadAdmins() {
+        var list = document.getElementById('adminsList');
+        var msgEl = document.getElementById('adminsMsg');
+        if (!list) return;
+        fetch('/admin/admins', { headers: authHeaders() })
+          .then(function(r) {
+            return r.json().then(function(data) { return { ok: r.ok, status: r.status, data: data }; }).catch(function() { return { ok: false, status: r.status, data: {} }; });
+          })
+          .then(function(result) {
+            list.innerHTML = '';
+            if (!result.ok) {
+              if (msgEl) { msgEl.textContent = 'Could not load admins. ' + (result.data.detail || 'Check your session.'); msgEl.className = 'msg visible error'; }
+              return;
+            }
+            if (msgEl) { msgEl.textContent = ''; msgEl.className = 'msg'; }
+            var admins = result.data.admins || [];
+            var currentUsername = (result.data.currentUsername || '').trim();
+            var isCurrentUserSuperAdmin = currentUsername.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase();
+            admins.forEach(function(username) {
+              var li = document.createElement('li');
+              var isSuperAdminRow = (username || '').toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase();
+              var showRemove = !isSuperAdminRow && isCurrentUserSuperAdmin;
+              li.innerHTML = '<span>' + escapeHtml(username) + '</span>' +
+                (isSuperAdminRow ? '<span class="hint" style="margin-left:8px;">(super admin)</span>' : (showRemove ? '<button type="button">Remove</button>' : ''));
+              if (showRemove) {
+                li.querySelector('button').addEventListener('click', function() { removeAdmin(username); });
+              }
+              list.appendChild(li);
+            });
+          })
+          .catch(function(e) {
+            if (msgEl) { msgEl.textContent = 'Could not load admins. ' + (e && e.message ? e.message : 'Network error'); msgEl.className = 'msg visible error'; }
+          });
+      }
+
+      function removeAdmin(username) {
+        showConfirmModal('Are you sure you want to remove this admin? They will lose access to the admin panel.').then(function(ok) {
+          if (!ok) return;
+          var msgEl = document.getElementById('adminsMsg');
+          if (msgEl) { msgEl.textContent = 'Removing…'; msgEl.className = 'msg visible'; }
+          fetch('/admin/admins?username=' + encodeURIComponent(username), { method: 'DELETE', headers: authHeaders() })
+            .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data, status: r.status }; }).catch(function() { return { ok: false, data: {}, status: r.status }; }); })
+            .then(function(result) {
+              loadAdmins();
+              if (msgEl) {
+                if (result.ok) {
+                  msgEl.textContent = 'Admin removed. They no longer have access.';
+                  msgEl.className = 'msg visible success';
+                } else {
+                  msgEl.textContent = detailText(result.data.detail) || 'Remove failed';
+                  msgEl.className = 'msg visible error';
+                }
+              }
+            })
+            .catch(function() {
+              loadAdmins();
+              if (msgEl) { msgEl.textContent = 'Network error'; msgEl.className = 'msg visible error'; }
+            });
+        });
+      }
+
+      function showLogin() {
+        setToken(null);
+        var panel = document.getElementById('adminPanel');
+        var login = document.getElementById('adminLogin');
+        if (panel) { panel.classList.remove('visible'); panel.style.display = 'none'; }
+        if (login) { login.style.display = 'block'; login.classList.add('visible'); }
+      }
+
+      function escapeHtml(s) {
+        var div = document.createElement('div');
+        div.textContent = s;
+        return div.innerHTML;
+      }
+
+      function loadWhitelist() {
+        fetch(API + '/admin/whitelist', { headers: authHeaders() })
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            var list = document.getElementById('whitelistList');
+            if (!list) return;
+            list.innerHTML = '';
+            (data.sites || []).forEach(function(url) {
+              var li = document.createElement('li');
+              li.innerHTML = '<span>' + escapeHtml(url) + '</span><button type="button">Remove</button>';
+              li.querySelector('button').addEventListener('click', function() { removeWhitelist(url); });
+              list.appendChild(li);
+            });
+          })
+          .catch(function() {});
+      }
+
+      function removeWhitelist(url) {
+        showConfirmModal('Are you sure you want to remove this site from the whitelist?').then(function(ok) {
+          if (!ok) return;
+          var whitelistMsg = document.getElementById('whitelistMsg');
+          if (whitelistMsg) { whitelistMsg.textContent = 'Removing…'; whitelistMsg.className = 'msg visible'; }
+          fetch(API + '/admin/whitelist?url=' + encodeURIComponent(url), { method: 'DELETE', headers: authHeaders() })
+            .then(function(r) { return r.json(); })
+            .then(function() {
+              loadWhitelist();
+              if (whitelistMsg) { whitelistMsg.textContent = 'Removed.'; whitelistMsg.className = 'msg visible success'; }
+            })
+            .catch(function() { loadWhitelist(); if (whitelistMsg) { whitelistMsg.classList.remove('visible'); } });
+        });
+      }
+
+      function loadBlacklist() {
+        fetch(API + '/admin/blacklist', { headers: authHeaders() })
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            var list = document.getElementById('blacklistList');
+            if (!list) return;
+            list.innerHTML = '';
+            (data.sites || []).forEach(function(url) {
+              var li = document.createElement('li');
+              li.innerHTML = '<span>' + escapeHtml(url) + '</span><button type="button">Remove</button>';
+              li.querySelector('button').addEventListener('click', function() { removeBlacklist(url); });
+              list.appendChild(li);
+            });
+          })
+          .catch(function() {});
+      }
+
+      function removeBlacklist(url) {
+        showConfirmModal('Are you sure you want to remove this site from the blacklist?').then(function(ok) {
+          if (!ok) return;
+          var blacklistMsg = document.getElementById('blacklistMsg');
+          if (blacklistMsg) { blacklistMsg.textContent = 'Removing…'; blacklistMsg.className = 'msg visible'; }
+          fetch(API + '/admin/blacklist?url=' + encodeURIComponent(url), { method: 'DELETE', headers: authHeaders() })
+            .then(function(r) { return r.json(); })
+            .then(function() {
+              loadBlacklist();
+              if (blacklistMsg) { blacklistMsg.textContent = 'Removed.'; blacklistMsg.className = 'msg visible success'; }
+            })
+            .catch(function() { loadBlacklist(); if (blacklistMsg) { blacklistMsg.classList.remove('visible'); } });
+        });
+      }
+
+      function bindButtons() {
+        var adminLoginBtn = document.getElementById('adminLoginBtn');
+        if (adminLoginBtn) {
+          adminLoginBtn.addEventListener('click', function() {
+            var u = (document.getElementById('adminUsername') || {}).value.trim();
+            var p = (document.getElementById('adminPassword') || {}).value;
+            if (!u || !p) { showLoginStatus('Enter email/username and password', 'error'); return; }
+            adminLoginBtn.disabled = true;
+            showLoginStatus('Signing in...', '');
+            fetch(API + '/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: u, password: p }) })
+              .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
+              .then(function(result) {
+                if (result.ok && result.data.token) {
+                  setToken(result.data.token);
+                  showPanel();
+                } else {
+                  showLoginStatus(detailText(result.data.detail) || 'Login failed', 'error');
+                }
+              })
+              .catch(function() { showLoginStatus('Network error', 'error'); })
+              .finally(function() { adminLoginBtn.disabled = false; });
+          });
+        }
+
+        var addAdminBtn = document.getElementById('addAdminBtn');
+        var addAdminMsg = document.getElementById('addAdminMsg');
+        var addAdminUsernameEl = document.getElementById('addAdminUsername');
+        var addAdminSuggestionsEl = document.getElementById('addAdminSuggestions');
+        var adminSearchTimeout = null;
+        function hideAdminSuggestions() { if (addAdminSuggestionsEl) addAdminSuggestionsEl.classList.remove('visible'); }
+        function showAdminSuggestions(users) {
+          if (!addAdminSuggestionsEl) return;
+          addAdminSuggestionsEl.innerHTML = '';
+          if (!users || users.length === 0) { hideAdminSuggestions(); return; }
+          users.forEach(function(u) {
+            var div = document.createElement('div');
+            div.className = 'suggestion-item';
+            div.setAttribute('role', 'option');
+            div.innerHTML = '<span class="suggestion-email">' + escapeHtml(u.email) + '</span>' + (u.displayName && u.displayName !== u.email ? '<span class="suggestion-name">' + escapeHtml(u.displayName) + '</span>' : '');
+            div.addEventListener('click', function() {
+              if (addAdminUsernameEl) { addAdminUsernameEl.value = u.email; addAdminUsernameEl.focus(); }
+              hideAdminSuggestions();
+            });
+            addAdminSuggestionsEl.appendChild(div);
+          });
+          addAdminSuggestionsEl.classList.add('visible');
+        }
+        if (addAdminUsernameEl) {
+          addAdminUsernameEl.addEventListener('input', function() {
+            var v = addAdminUsernameEl.value.trim();
+            if (adminSearchTimeout) clearTimeout(adminSearchTimeout);
+            if (v.length < 2) { hideAdminSuggestions(); return; }
+            adminSearchTimeout = setTimeout(function() {
+              adminSearchTimeout = null;
+              fetch(API + '/admin/search-users?q=' + encodeURIComponent(v), { method: 'GET', headers: authHeaders() })
+                .then(function(r) { return r.json().catch(function() { return { users: [] }; }); })
+                .then(function(data) { showAdminSuggestions(data.users || []); })
+                .catch(function() { hideAdminSuggestions(); });
+            }, 180);
+          });
+          addAdminUsernameEl.addEventListener('blur', function() { setTimeout(hideAdminSuggestions, 200); });
+          addAdminUsernameEl.addEventListener('keydown', function(e) { if (e.key === 'Escape') hideAdminSuggestions(); });
+        }
+        if (addAdminBtn) {
+          addAdminBtn.addEventListener('click', function() {
+            var u = (addAdminUsernameEl || {}).value.trim();
+            if (!u) { if (addAdminMsg) { addAdminMsg.textContent = 'Enter email'; addAdminMsg.className = 'msg visible error'; } return; }
+            if (u.indexOf('@') === -1) { if (addAdminMsg) { addAdminMsg.textContent = 'Enter a valid email address'; addAdminMsg.className = 'msg visible error'; } return; }
+            addAdminBtn.disabled = true;
+            if (addAdminMsg) { addAdminMsg.textContent = 'Checking Azure AD and adding...'; addAdminMsg.className = 'msg visible'; }
+            fetch(API + '/admin/add-admin', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ username: u }) })
+              .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }).catch(function() { return { ok: false, data: {} }; }); })
+              .then(function(result) {
+                if (result.ok) {
+                  if (addAdminMsg) { addAdminMsg.textContent = result.data.message || 'Admin added.'; addAdminMsg.className = 'msg visible success'; }
+                  if (addAdminUsernameEl) addAdminUsernameEl.value = '';
+                  hideAdminSuggestions();
+                  loadAdmins();
+                } else {
+                  if (addAdminMsg) { addAdminMsg.textContent = detailText(result.data.detail) || 'Add failed'; addAdminMsg.className = 'msg visible error'; }
+                }
+              })
+              .catch(function() { if (addAdminMsg) { addAdminMsg.textContent = 'Network error'; addAdminMsg.className = 'msg visible error'; } })
+              .finally(function() { addAdminBtn.disabled = false; });
+          });
+        }
+
+        var whitelistAddBtn = document.getElementById('whitelistAddBtn');
+        var whitelistInput = document.getElementById('whitelistInput');
+        var whitelistMsg = document.getElementById('whitelistMsg');
+        if (whitelistAddBtn) {
+          whitelistAddBtn.addEventListener('click', function() {
+            var url = whitelistInput ? whitelistInput.value.trim() : '';
+            if (!url) { if (whitelistMsg) { whitelistMsg.textContent = 'Enter a URL'; whitelistMsg.className = 'msg visible error'; } return; }
+            whitelistAddBtn.disabled = true;
+            if (whitelistMsg) { whitelistMsg.textContent = 'Adding…'; whitelistMsg.className = 'msg visible'; }
+            fetch(API + '/admin/whitelist', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ url: url }) })
+              .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }).catch(function() { return { ok: false, data: {} }; }); })
+              .then(function(result) {
+                if (result.ok) {
+                  if (whitelistInput) whitelistInput.value = '';
+                  loadWhitelist();
+                  if (whitelistMsg) { whitelistMsg.textContent = 'Added.'; whitelistMsg.className = 'msg visible success'; }
+                } else {
+                  if (whitelistMsg) { whitelistMsg.textContent = detailText(result.data.detail) || 'Add failed'; whitelistMsg.className = 'msg visible error'; }
+                }
+              })
+              .catch(function() { if (whitelistMsg) { whitelistMsg.textContent = 'Network error'; whitelistMsg.className = 'msg visible error'; } })
+              .finally(function() { whitelistAddBtn.disabled = false; });
+          });
+        }
+
+        var blacklistAddBtn = document.getElementById('blacklistAddBtn');
+        var blacklistInput = document.getElementById('blacklistInput');
+        var blacklistMsg = document.getElementById('blacklistMsg');
+        if (blacklistAddBtn) {
+          blacklistAddBtn.addEventListener('click', function() {
+            var url = blacklistInput ? blacklistInput.value.trim() : '';
+            if (!url) { if (blacklistMsg) { blacklistMsg.textContent = 'Enter a URL'; blacklistMsg.className = 'msg visible error'; } return; }
+            blacklistAddBtn.disabled = true;
+            if (blacklistMsg) { blacklistMsg.textContent = 'Adding…'; blacklistMsg.className = 'msg visible'; }
+            fetch(API + '/admin/blacklist', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ url: url }) })
+              .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }).catch(function() { return { ok: false, data: {} }; }); })
+              .then(function(result) {
+                if (result.ok) {
+                  if (blacklistInput) blacklistInput.value = '';
+                  loadBlacklist();
+                  if (blacklistMsg) { blacklistMsg.textContent = 'Added.'; blacklistMsg.className = 'msg visible success'; }
+                } else {
+                  if (blacklistMsg) { blacklistMsg.textContent = detailText(result.data.detail) || 'Add failed'; blacklistMsg.className = 'msg visible error'; }
+                }
+              })
+              .catch(function() { if (blacklistMsg) { blacklistMsg.textContent = 'Network error'; blacklistMsg.className = 'msg visible error'; } })
+              .finally(function() { blacklistAddBtn.disabled = false; });
+          });
+        }
+      }
+
+      function tryRestoreFromToken() {
+        if (getToken()) { showPanel(); return true; }
+        return false;
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+          bindButtons();
+          if (!tryRestoreFromToken()) showLogin();
+        });
+      } else {
+        bindButtons();
+        if (!tryRestoreFromToken()) showLogin();
+      }
+    })();
+  </script>
+</body>
+</html>
