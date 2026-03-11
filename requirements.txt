@@ -1,5 +1,5 @@
 fastapi
-uvicorn
+uvicorn[standard]
 python-dotenv
 requests
 msal
@@ -14,5 +14,5 @@ docx2txt
 azure-search-documents
 azure-core
 azure-keyvault-secrets
-PyJWT
+pyjwt
 pdfplumber
