@@ -5,6 +5,7 @@ import pyodbc
 import logging
 from datetime import datetime, timedelta, timezone
 from config import SQL_SERVER, SQL_DATABASE, SQL_USERNAME, SQL_PASSWORD, SQL_DRIVER
+from config import get_secret, TENANT_ID, CLIENT_ID, CLIENT_SECRET
 
 logger = logging.getLogger("sql_logger")
 logger.setLevel(logging.INFO)
