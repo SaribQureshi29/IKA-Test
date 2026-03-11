@@ -24,9 +24,9 @@ def get_secret(name: str) -> str:
 
 # Step 3: SQL credentials from KV
 SQL_SERVER   = get_secret("SQLSERVER")
-SQL_DATABASE = get_secret("SQL-DATABASE")
-SQL_USERNAME = get_secret("SQL-USERNAME")
-SQL_PASSWORD = get_secret("SQL-PASSWORD")
+SQL_DATABASE = get_secret("SQLDATABASE")
+SQL_USERNAME = get_secret("SQLUSERNAME")
+SQL_PASSWORD = get_secret("SQLPASSWORD")
 
 # Step 4: Remaining config from SQL
 def get_values_from_sql():
@@ -61,3 +61,4 @@ def get_values_from_sql():
  SP_EXCLUDE_PATHS,
 
  MODEL_DEPLOYMENT) = get_values_from_sql()
+
