@@ -23,7 +23,7 @@ def get_secret(name: str) -> str:
     return kv_client.get_secret(name).value
 
 # Step 3: SQL credentials from KV
-SQL_SERVER   = get_secret("SQL-SERVER")
+SQL_SERVER   = get_secret("SQLSERVER")
 SQL_DATABASE = get_secret("SQL-DATABASE")
 SQL_USERNAME = get_secret("SQL-USERNAME")
 SQL_PASSWORD = get_secret("SQL-PASSWORD")
@@ -59,4 +59,5 @@ def get_values_from_sql():
  CLIENT_SECRET,
  SP_SITE_PATH,
  SP_EXCLUDE_PATHS,
+
  MODEL_DEPLOYMENT) = get_values_from_sql()
