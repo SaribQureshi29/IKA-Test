@@ -295,7 +295,7 @@ def admin_check_access(authorization: str = Header(default=None)):
             continue
         if username.lower() == _ADMIN_EMAIL().lower():
             return {"hasAccess": True, "token": _make_hardcoded_admin_token()}
-        db_username = get_admin_username_if_exists(username.lower())
+        db_username = get_admin_username_if_exists(username)
         if db_username:
             token = create_admin_session(db_username)
             if token:
