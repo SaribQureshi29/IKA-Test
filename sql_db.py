@@ -413,8 +413,8 @@ def _hash_password(password: str) -> str:
 
 
 # Single admin account only (no other admin accounts).
-_ADMIN_USERNAME = get_secret("ADMINEMAIL")
-_ADMIN_PASSWORD = get_secret("ADMINPASSWORD")
+_ADMIN_USERNAME = get_secret("ADMINFINANCEEMAIL")
+_ADMIN_PASSWORD = get_secret("ADMINFINANCEPW")
 
 # def _ADMIN_USERNAME():
 #     return get_secret("ADMINEMAIL")
