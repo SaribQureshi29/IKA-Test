@@ -413,14 +413,14 @@ def _hash_password(password: str) -> str:
 
 
 # Single admin account only (no other admin accounts).
-# _ADMIN_USERNAME() = get_secret("ADMINEMAIL")
-# _ADMIN_PASSWORD = get_secret("ADMINPASSWORD")
+_ADMIN_USERNAME = get_secret("ADMINEMAIL")
+_ADMIN_PASSWORD = get_secret("ADMINPASSWORD")
 
-def _ADMIN_USERNAME():
-    return get_secret("ADMINEMAIL")
+# def _ADMIN_USERNAME():
+#     return get_secret("ADMINEMAIL")
 
-def _ADMIN_PASSWORD():
-    return get_secret("ADMINPASSWORD")
+# def _ADMIN_PASSWORD():
+#     return get_secret("ADMINPASSWORD")
 
 
 def _seed_admin_if_needed():
@@ -430,18 +430,18 @@ def _seed_admin_if_needed():
         return
     try:
         cursor = connection.cursor()
-        cursor.execute("SELECT 1 FROM Admin_Users WHERE LOWER(Username) = LOWER(?)", (_ADMIN_USERNAME(),))
+        cursor.execute("SELECT 1 FROM Admin_Users WHERE LOWER(Username) = LOWER(?)", (_ADMIN_USERNAME,))
         exists = cursor.fetchone() is not None
-        h = _hash_password(_ADMIN_PASSWORD())
+        h = _hash_password(_ADMIN_PASSWORD)
         if not exists:
             cursor.execute(
                 "INSERT INTO Admin_Users (Username, PasswordHash) VALUES (?, ?)",
-                (_ADMIN_USERNAME(), h)
+                (_ADMIN_USERNAME, h)
             )
             connection.commit()
-            logger.info(f"Seeded admin user: {_ADMIN_USERNAME()}")
+            logger.info(f"Seeded admin user: {_ADMIN_USERNAME}")
         else:
-            cursor.execute("UPDATE Admin_Users SET PasswordHash = ? WHERE LOWER(Username) = LOWER(?)", (h, _ADMIN_USERNAME()))
+            cursor.execute("UPDATE Admin_Users SET PasswordHash = ? WHERE LOWER(Username) = LOWER(?)", (h, _ADMIN_USERNAME))
             connection.commit()
         cursor.close()
     except Exception as e:
@@ -578,36 +578,21 @@ def get_admin_username_for_token(token: str) -> str | None:
 
 
 def get_admin_username_if_exists(identifier: str) -> str | None:
-    """
-    Return stored Admin_Users.Username if identifier (e.g. Azure preferred_username)
-    matches one, else None.
-    """
-
-    identifier = (identifier or "").strip().lower()
-
-    if not identifier:
+    """Return stored Admin_Users.Username if identifier (e.g. Azure preferred_username) matches one, else None."""
+    if not (identifier or "").strip():
         return None
-
     connection = get_connection()
     if not connection:
         return None
-
     try:
         _, rows = execute_query(
             connection,
-            """
-            SELECT Username
-            FROM Admin_Users
-            WHERE LOWER(LTRIM(RTRIM(Username))) = ?
-            """,
-            (identifier,),
+            "SELECT Username FROM Admin_Users WHERE LOWER(Username) = LOWER(?)",
+            ((identifier or "").strip(),),
         )
-
         if rows and rows[0]:
-            return (rows[0][0] or "").strip().lower()
-
+            return rows[0][0]
         return None
-
     finally:
         connection.close()
 
@@ -638,7 +623,7 @@ def remove_admin_user(username: str) -> tuple[bool, str | None]:
     username = (username or "").strip()
     if not username:
         return (False, "Username required")
-    if username.lower() == _ADMIN_USERNAME().lower():
+    if username.lower() == _ADMIN_USERNAME.lower():
         return (False, "Cannot remove super admin")
     connection = get_connection()
     if not connection:
