@@ -557,7 +557,7 @@ def add_admin_user(username: str, password: str | None = None) -> tuple[str | No
         connection.close()
 
 
-def get_ADMIN_USERNAME()_for_token(token: str) -> str | None:
+def get_admin_username_for_token(token: str) -> str | None:
     """Return username if token is valid and not expired, else None."""
     if not token:
         return None
@@ -577,7 +577,7 @@ def get_ADMIN_USERNAME()_for_token(token: str) -> str | None:
         connection.close()
 
 
-def get_ADMIN_USERNAME()_if_exists(identifier: str) -> str | None:
+def get_admin_username_if_exists(identifier: str) -> str | None:
     """Return stored Admin_Users.Username if identifier (e.g. Azure preferred_username) matches one, else None."""
     if not (identifier or "").strip():
         return None
@@ -597,7 +597,7 @@ def get_ADMIN_USERNAME()_if_exists(identifier: str) -> str | None:
         connection.close()
 
 
-def list_all_ADMIN_USERNAME()s() -> list:
+def list_all_admin_usernames() -> list:
     """Return list of all admin usernames from Admin_Users (for super admin to list/remove)."""
     connection = get_connection()
     if not connection:
