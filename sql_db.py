@@ -578,21 +578,36 @@ def get_admin_username_for_token(token: str) -> str | None:
 
 
 def get_admin_username_if_exists(identifier: str) -> str | None:
-    """Return stored Admin_Users.Username if identifier (e.g. Azure preferred_username) matches one, else None."""
-    if not (identifier or "").strip():
+    """
+    Return stored Admin_Users.Username if identifier (e.g. Azure preferred_username)
+    matches one, else None.
+    """
+
+    identifier = (identifier or "").strip().lower()
+
+    if not identifier:
         return None
+
     connection = get_connection()
     if not connection:
         return None
+
     try:
         _, rows = execute_query(
             connection,
-            "SELECT Username FROM Admin_Users WHERE LOWER(Username) = LOWER(?)",
-            ((identifier or "").strip(),),
+            """
+            SELECT Username
+            FROM Admin_Users
+            WHERE LOWER(LTRIM(RTRIM(Username))) = ?
+            """,
+            (identifier,),
         )
+
         if rows and rows[0]:
-            return rows[0][0]
+            return (rows[0][0] or "").strip().lower()
+
         return None
+
     finally:
         connection.close()
 
