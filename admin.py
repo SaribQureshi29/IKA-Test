@@ -290,14 +290,12 @@ def admin_check_access(authorization: str = Header(default=None)):
     except Exception:
         return {"hasAccess": False}
     candidates = _username_candidates_from_payload(payload)
-    print(f"[CHECK-ACCESS DEBUG] candidates={candidates}")
     for username in candidates:
         if not username:
             continue
         if username.lower() == _ADMIN_EMAIL().lower():
             return {"hasAccess": True, "token": _make_hardcoded_admin_token()}
         db_username = get_admin_username_if_exists(username.lower())
-        print(f"[CHECK-ACCESS DEBUG] username='{username}' | db_username='{db_username}'")
         if db_username:
             token = create_admin_session(db_username)
             if token:
