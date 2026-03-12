@@ -62,19 +62,19 @@ if not logger.handlers:
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 # --- Hardcoded admin (single account, always works) ---
-# _ADMIN_EMAIL() = get_secret("ADMINEMAIL")
-# _ADMIN_PASSWORD = get_secret("ADMINPASSWORD")
-def _ADMIN_EMAIL():
-    return get_secret("ADMINEMAIL")
-def _ADMIN_PASSWORD():
-    return get_secret("ADMINPASSWORD")
+_ADMIN_EMAIL = get_secret("ADMINEMAIL")
+_ADMIN_PASSWORD = get_secret("ADMINPASSWORD")
+# def _ADMIN_EMAIL():
+#     return get_secret("ADMINEMAIL")
+# def _ADMIN_PASSWORD():
+#     return get_secret("ADMINPASSWORD")
 _ADMIN_SESSION_SECRET = ("ika_admin_session_secret").encode("utf-8")
 
 
 def _make_hardcoded_admin_token() -> str:
     """Issue a signed token for hardcoded admin (no DB). Valid 24h."""
     expiry = int(time.time()) + 24 * 3600
-    payload = f"{_ADMIN_EMAIL()}:{expiry}"
+    payload = f"{_ADMIN_EMAIL}:{expiry}"
     sig = hmac.new(_ADMIN_SESSION_SECRET, payload.encode("utf-8"), hashlib.sha256).hexdigest()
     return f"ika_admin:{expiry}:{sig}"
 
@@ -92,7 +92,7 @@ def _is_valid_hardcoded_admin_token(token: str) -> bool:
         return False
     if expiry < int(time.time()):
         return False
-    payload = f"{_ADMIN_EMAIL()}:{expiry}"
+    payload = f"{_ADMIN_EMAIL}:{expiry}"
     expected = hmac.new(_ADMIN_SESSION_SECRET, payload.encode("utf-8"), hashlib.sha256).hexdigest()
     return hmac.compare_digest(expected, parts[2])
 
@@ -101,7 +101,7 @@ def _require_admin_token(x_admin_token: str = Header(None, alias="X-Admin-Token"
     if not x_admin_token:
         raise HTTPException(status_code=401, detail="Admin token required")
     if _is_valid_hardcoded_admin_token(x_admin_token):
-        return _ADMIN_EMAIL()
+        return _ADMIN_EMAIL
     username = get_admin_username_for_token(x_admin_token)
     if not username:
         raise HTTPException(status_code=401, detail="Invalid or expired admin token")
@@ -293,10 +293,9 @@ def admin_check_access(authorization: str = Header(default=None)):
     for username in candidates:
         if not username:
             continue
-        normalized_username = username.strip().lower()
-        if normalized_username == _ADMIN_EMAIL().lower():
+        if username.lower() == _ADMIN_EMAIL.lower():
             return {"hasAccess": True, "token": _make_hardcoded_admin_token()}
-        db_username = get_admin_username_if_exists(normalized_username)
+        db_username = get_admin_username_if_exists(username)
         if db_username:
             token = create_admin_session(db_username)
             if token:
@@ -310,7 +309,7 @@ def admin_login(req: AdminLoginRequest):
     password = (req.password or "").strip()
     if not username or not password:
         raise HTTPException(status_code=400, detail="Username and password required")
-    if username == _ADMIN_EMAIL() and password == _ADMIN_PASSWORD():
+    if username == _ADMIN_EMAIL and password == _ADMIN_PASSWORD:
         log_admin_action(username, "LOGIN", None)
         return {"ok": True, "token": _make_hardcoded_admin_token()}
     if not validate_admin(username, password):
@@ -487,9 +486,9 @@ def admin_add_admin(req: AddAdminRequest, x_admin_token: str = Header(None, alia
 def admin_list_admins(admin_user: str = Header(None, alias="X-Admin-Token")):
     """List all admin usernames. Any logged-in admin can view. currentUsername is used by frontend to show Remove only to super admin."""
     current_username = _require_admin_token(admin_user)
-    is_super_admin = current_username.lower() == _ADMIN_EMAIL().lower()
+    is_super_admin = current_username.lower() == _ADMIN_EMAIL.lower()
     return {"admins": list_all_admin_usernames(), "currentUsername": current_username,"isSuperAdmin": is_super_admin,
-        "superAdminEmail": _ADMIN_EMAIL()}
+        "superAdminEmail": _ADMIN_EMAIL}
 
 
 @router.delete("/admins")
@@ -499,7 +498,7 @@ def admin_remove_admin(
 ):
     """Remove an admin from the DB. Only super admin (IKA admin) can remove. Removed admin loses access immediately."""
     admin_username = _require_admin_token(x_admin_token)
-    if admin_username.lower() != _ADMIN_EMAIL().lower():
+    if admin_username.lower() != _ADMIN_EMAIL.lower():
         raise HTTPException(status_code=403, detail="Only super admin can remove admins")
     ok, err = remove_admin_user(username)
     if not ok:
