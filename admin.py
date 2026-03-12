@@ -293,9 +293,10 @@ def admin_check_access(authorization: str = Header(default=None)):
     for username in candidates:
         if not username:
             continue
-        if username.lower() == _ADMIN_EMAIL().lower():
+        normalized_username = username.strip().lower()
+        if normalized_username == _ADMIN_EMAIL().lower():
             return {"hasAccess": True, "token": _make_hardcoded_admin_token()}
-        db_username = get_admin_username_if_exists(username)
+        db_username = get_admin_username_if_exists(normalized_username)
         if db_username:
             token = create_admin_session(db_username)
             if token:
