@@ -68,7 +68,7 @@ _ADMIN_PASSWORD = get_secret("ADMINFINANCEPW")
 #     return get_secret("ADMINEMAIL")
 # def _ADMIN_PASSWORD():
 #     return get_secret("ADMINPASSWORD")
-_ADMIN_SESSION_SECRET = ("ika_admin_session_secret").encode("utf-8")
+_ADMIN_SESSION_SECRET = ("ika_admin_session_secret").encode("utf-8") 
 
 
 def _make_hardcoded_admin_token() -> str:
