@@ -241,7 +241,7 @@
         loadBlacklist();
       }
 
-      var SUPER_ADMIN_EMAIL = 'ika_admin_user@caremiles.app';
+      //var SUPER_ADMIN_EMAIL = 'ika_admin_user@caremiles.app';
       function loadAdmins() {
         var list = document.getElementById('adminsList');
         var msgEl = document.getElementById('adminsMsg');
@@ -259,10 +259,10 @@
             if (msgEl) { msgEl.textContent = ''; msgEl.className = 'msg'; }
             var admins = result.data.admins || [];
             var currentUsername = (result.data.currentUsername || '').trim();
-            var isCurrentUserSuperAdmin = currentUsername.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase();
+            var isCurrentUserSuperAdmin = result.data.isSuperAdmin === true;
             admins.forEach(function(username) {
               var li = document.createElement('li');
-              var isSuperAdminRow = (username || '').toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase();
+              var isSuperAdminRow = username === result.data.superAdminEmail;
               var showRemove = !isSuperAdminRow && isCurrentUserSuperAdmin;
               li.innerHTML = '<span>' + escapeHtml(username) + '</span>' +
                 (isSuperAdminRow ? '<span class="hint" style="margin-left:8px;">(super admin)</span>' : (showRemove ? '<button type="button">Remove</button>' : ''));
