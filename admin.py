@@ -62,8 +62,8 @@ if not logger.handlers:
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 # --- Hardcoded admin (single account, always works) ---
-_ADMIN_EMAIL = get_secret("ADMINEMAIL")
-_ADMIN_PASSWORD = get_secret("ADMINPASSWORD")
+_ADMIN_EMAIL = get_secret("ADMINFINANCEEMAIL")
+_ADMIN_PASSWORD = get_secret("ADMINFINANCEPW")
 # def _ADMIN_EMAIL():
 #     return get_secret("ADMINEMAIL")
 # def _ADMIN_PASSWORD():
