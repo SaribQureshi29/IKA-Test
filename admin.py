@@ -482,7 +482,9 @@ def admin_add_admin(req: AddAdminRequest, x_admin_token: str = Header(None, alia
 def admin_list_admins(admin_user: str = Header(None, alias="X-Admin-Token")):
     """List all admin usernames. Any logged-in admin can view. currentUsername is used by frontend to show Remove only to super admin."""
     current_username = _require_admin_token(admin_user)
-    return {"admins": list_all_admin_usernames(), "currentUsername": current_username}
+    is_super_admin = current_username.lower() == _ADMIN_EMAIL.lower()
+    return {"admins": list_all_admin_usernames(), "currentUsername": current_username,"isSuperAdmin": is_super_admin,
+        "superAdminEmail": _ADMIN_EMAIL}
 
 
 @router.delete("/admins")
