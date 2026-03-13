@@ -7,55 +7,6 @@ import pyodbc
 from config import (get_secret, TENANT_ID, CLIENT_ID, CLIENT_SECRET,
                     SP_SITE_PATH, SP_EXCLUDE_PATHS)
 
-# SQL_SERVER = "ika-chat-sql-server.database.windows.net"
-# SQL_DATABASE = "ika-chat-db"
-# SQL_USERNAME = "SqlAdmin"
-# SQL_PASSWORD = "Admin_456!!"
-# SQL_DRIVER = "{ODBC Driver 18 for SQL Server}"
-# KEY_VAULT_URL = "https://ikakv.vault.azure.net/"
-
-# def get_values_from_sql():
-#     conn_str = f'DRIVER={SQL_DRIVER};SERVER={SQL_SERVER};PORT=1433;DATABASE={SQL_DATABASE};UID={SQL_USERNAME};PWD={SQL_PASSWORD}'
-#     try:
-#         with pyodbc.connect(conn_str) as conn:
-#             with conn.cursor() as cursor:
-#                 cursor.execute("""
-#                     SELECT ConfigKey, ConfigValue 
-#                     FROM Configs 
-#                     WHERE ConfigKey IN ('TENANT_ID', 'CLIENT_ID', 'CLIENT_SECRET', 'SP_SITE_PATH', 'SP_EXCLUDE_PATHS')
-#                 """)
-#                 rows = cursor.fetchall()
-#                 config_dict = {row.ConfigKey: row.ConfigValue for row in rows}
-#                 return (
-#                     config_dict.get('TENANT_ID', ""),
-#                     config_dict.get('CLIENT_ID', ""),
-#                     config_dict.get('CLIENT_SECRET', ""),
-#                     config_dict.get('SP_SITE_PATH', ""),
-#                     config_dict.get('SP_EXCLUDE_PATHS', "")
-#                 )
-#     except Exception as e:
-#         print(f"[SQL ERROR] Could not fetch configs in graph_Service.py: {e}")
-#         return "", "", "", "", ""
-
-# (TENANT_ID,
-#  CLIENT_ID,
-#  CLIENT_SECRET,
-#  SP_SITE_PATH,
-#  SP_EXCLUDE_PATHS) = get_values_from_sql()
-
-# print(SP_SITE_PATH)
-
-# credential = ClientSecretCredential(
-#     tenant_id=TENANT_ID,
-#     client_id=CLIENT_ID,
-#     client_secret=CLIENT_SECRET
-# )
-
-# kv_client = SecretClient(vault_url=KEY_VAULT_URL, credential=credential)
-
-# def get_secret(name: str) -> str:
-#     return kv_client.get_secret(name).value
-
 API_CLIENT_ID = get_secret("API-CLIENT-ID") #KV
 API_CLIENT_SECRET = get_secret("API-CLIENT-SECRET") #KV
 
