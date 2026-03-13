@@ -30,7 +30,9 @@ from azure.identity import ClientSecretCredential
 from azure.keyvault.secrets import SecretClient
 import pyodbc
 from config import get_secret, TENANT_ID, CLIENT_ID, CLIENT_SECRET
-
+import os
+from azure.identity import DefaultAzureCredential
+from azure.keyvault.secrets import SecretClient
 from sql_db import (
     validate_admin,
     create_admin_session,
@@ -61,13 +63,9 @@ if not logger.handlers:
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
-# --- Hardcoded admin (single account, always works) ---
+# --- Dynamic admin---
 _ADMIN_EMAIL = get_secret("ADMINFINANCEEMAIL")
 _ADMIN_PASSWORD = get_secret("ADMINFINANCEPW")
-# def _ADMIN_EMAIL():
-#     return get_secret("ADMINEMAIL")
-# def _ADMIN_PASSWORD():
-#     return get_secret("ADMINPASSWORD")
 _ADMIN_SESSION_SECRET = ("ika_admin_session_secret").encode("utf-8") 
 
 
@@ -77,7 +75,6 @@ def _make_hardcoded_admin_token() -> str:
     payload = f"{_ADMIN_EMAIL}:{expiry}"
     sig = hmac.new(_ADMIN_SESSION_SECRET, payload.encode("utf-8"), hashlib.sha256).hexdigest()
     return f"ika_admin:{expiry}:{sig}"
-
 
 def _is_valid_hardcoded_admin_token(token: str) -> bool:
     """Verify signed token for hardcoded admin."""
@@ -96,7 +93,6 @@ def _is_valid_hardcoded_admin_token(token: str) -> bool:
     expected = hmac.new(_ADMIN_SESSION_SECRET, payload.encode("utf-8"), hashlib.sha256).hexdigest()
     return hmac.compare_digest(expected, parts[2])
 
-
 def _require_admin_token(x_admin_token: str = Header(None, alias="X-Admin-Token")):
     if not x_admin_token:
         raise HTTPException(status_code=401, detail="Admin token required")
@@ -107,85 +103,23 @@ def _require_admin_token(x_admin_token: str = Header(None, alias="X-Admin-Token"
         raise HTTPException(status_code=401, detail="Invalid or expired admin token")
     return username
 
-
 # --- Pydantic models ---
 class AdminLoginRequest(BaseModel):
     username: str
     password: str
 
-
 class SiteUrlRequest(BaseModel):
     url: str
-
 
 class AddAdminRequest(BaseModel):
     username: str
     password: str | None = None  # If omitted, user must exist in Azure AD (email-only add).
-
-
-# ==================== FIXED FUNCTION WITH BETTER ERROR HANDLING ====================
-import os
-from azure.identity import DefaultAzureCredential
-from azure.keyvault.secrets import SecretClient
 
 def _trigger_ingest():
     """Call Azure Function to run FULL ingest after whitelist/blacklist change."""
     print("=== _trigger_ingest() STARTED ===")
     
     try:
-        # Get secrets from Key Vault directly (works both locally and in Azure)
-        # KEY_VAULT_URL = "https://ikakv.vault.azure.net/"
-        
-        # Use DefaultAzureCredential - works with:
-        # - Your Azure CLI login (local)
-        # - Managed Identity (Azure)
-        # SQL_SERVER = "ika-chat-sql-server.database.windows.net"
-        # SQL_DATABASE = "ika-chat-db"
-        # SQL_USERNAME = "SqlAdmin"
-        # SQL_PASSWORD = "Admin_456!!"
-        # SQL_DRIVER = "{ODBC Driver 18 for SQL Server}"
-        # KEY_VAULT_URL = "https://ikakv.vault.azure.net/"
-
-        # def get_values_from_sql():
-        #     conn_str = f'DRIVER={SQL_DRIVER};SERVER={SQL_SERVER};PORT=1433;DATABASE={SQL_DATABASE};UID={SQL_USERNAME};PWD={SQL_PASSWORD}'
-        #     try:
-        #         with pyodbc.connect(conn_str) as conn:
-        #             with conn.cursor() as cursor:
-        #                 cursor.execute("""
-        #                     SELECT ConfigKey, ConfigValue 
-        #                     FROM Configs 
-        #                     WHERE ConfigKey IN ('TENANT_ID', 'CLIENT_ID', 'CLIENT_SECRET', 'SP_SITE_PATH', 'SP_EXCLUDE_PATHS', 'MODEL_DEPLOYMENT')
-        #                 """)
-        #                 rows = cursor.fetchall()
-        #                 config_dict = {row.ConfigKey: row.ConfigValue for row in rows}
-        #                 return (
-        #                     config_dict.get('TENANT_ID', ""),
-        #                     config_dict.get('CLIENT_ID', ""),
-        #                     config_dict.get('CLIENT_SECRET', ""),
-        #                     config_dict.get('SP_SITE_PATH', ""),
-        #                     config_dict.get('SP_EXCLUDE_PATHS', ""),
-        #                     config_dict.get('MODEL_DEPLOYMENT', "")
-        #                 )
-        #     except Exception as e:
-        #         print(f"[SQL ERROR] Could not fetch configs in utils.py: {e}")
-        #         return "", "", "", "", ""
-
-        # (TENANT_ID,
-        # CLIENT_ID,
-        # CLIENT_SECRET,
-        # SP_SITE_PATH,
-        # SP_EXCLUDE_PATHS,
-        # MODEL_DEPLOYMENT) = get_values_from_sql()
-
-        # credential = ClientSecretCredential(
-        #     tenant_id=TENANT_ID,
-        #     client_id=CLIENT_ID,
-        #     client_secret=CLIENT_SECRET
-        # )
-        # kv_client = SecretClient(vault_url=KEY_VAULT_URL, credential=credential)
-
-        # def get_secret(name: str) -> str:
-        #     return kv_client.get_secret(name).value
         # Get the secrets from Key Vault
         ingest_secret = get_secret("INGEST-TRIGGER-SECRET")
         function_url = get_secret("INGEST-TRIGGER-URL")
@@ -227,10 +161,7 @@ def _trigger_ingest():
     
     print("=== _trigger_ingest() COMPLETED ===")
 
-        
-        
 # =========================================================
-
 
 def _get_organization_domain(access_token: str) -> str:
     """Get default verified domain from Microsoft Graph when ORGANIZATION_DOMAIN not in env."""
