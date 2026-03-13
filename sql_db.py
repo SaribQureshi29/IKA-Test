@@ -13,14 +13,6 @@ logger.setLevel(logging.INFO)
 def get_connection():
     try:
         conn_str = (
-            # f"DRIVER={'ODBC Driver 18 for SQL Server'};"
-            # f"SERVER={'ika-chat-sql-server.database.windows.net'};"
-            # f"DATABASE={'ika-chat-db'};"
-            # f"UID={'SqlAdmin'};"
-            # f"PWD={'Admin_456!!'};"
-            # f"Encrypt={'yes'};"
-            # f"Connection Timeout={'120'};"
-            # f"TrustServerCertificate=no;"
             f"DRIVER={SQL_DRIVER};"
             f"SERVER={SQL_SERVER};"
             f"DATABASE={SQL_DATABASE};"
@@ -96,7 +88,6 @@ def get_config_value(config_key: str) -> str | None:
     finally:
         connection.close()
     return None
-
 
 def set_config_value(config_key: str, config_value: str) -> bool:
     """Write a value to Configs table (upsert). Returns True on success."""
@@ -412,16 +403,9 @@ def _hash_password(password: str) -> str:
     return hashlib.sha256(f"{salt}{p}".encode("utf-8")).hexdigest()
 
 
-# Single admin account only (no other admin accounts).
+# admin account
 _ADMIN_USERNAME = get_secret("ADMINFINANCEEMAIL")
 _ADMIN_PASSWORD = get_secret("ADMINFINANCEPW")
-
-# def _ADMIN_USERNAME():
-#     return get_secret("ADMINEMAIL")
-
-# def _ADMIN_PASSWORD():
-#     return get_secret("ADMINPASSWORD")
-
 
 def _seed_admin_if_needed():
     """Ensure ika admin user exists in Admin_Users (insert if missing, update password hash if present)."""
@@ -452,7 +436,6 @@ def _seed_admin_if_needed():
         if connection:
             connection.close()
 
-
 def log_admin_action(username: str, action: str, details: str | None = None) -> bool:
     """Log an admin action to Admin_Logs. Actions: LOGIN, ADD_WHITELIST, REMOVE_WHITELIST, ADD_BLACKLIST, REMOVE_BLACKLIST, ADD_ADMIN, PROVISION_USER."""
     connection = get_connection()
@@ -469,7 +452,6 @@ def log_admin_action(username: str, action: str, details: str | None = None) -> 
         return False
     finally:
         connection.close()
-
 
 def validate_admin(username: str, password: str) -> bool:
     """Validate admin credentials against database. Username is case-insensitive; password is trimmed."""
