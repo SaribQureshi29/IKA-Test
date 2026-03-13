@@ -19,55 +19,6 @@ from admin import router as admin_router
 from config import (get_secret, TENANT_ID, CLIENT_ID, CLIENT_SECRET,
                     SP_SITE_PATH, SP_EXCLUDE_PATHS, MODEL_DEPLOYMENT)
 
-# SQL_SERVER = "ika-chat-sql-server.database.windows.net"
-# SQL_DATABASE = "ika-chat-db"
-# SQL_USERNAME = "SqlAdmin"
-# SQL_PASSWORD = "Admin_456!!"
-# SQL_DRIVER = "{ODBC Driver 18 for SQL Server}"
-# KEY_VAULT_URL = "https://ikakv.vault.azure.net/"
-
-# def get_values_from_sql():
-#     conn_str = f'DRIVER={SQL_DRIVER};SERVER={SQL_SERVER};PORT=1433;DATABASE={SQL_DATABASE};UID={SQL_USERNAME};PWD={SQL_PASSWORD}'
-#     try:
-#         with pyodbc.connect(conn_str) as conn:
-#             with conn.cursor() as cursor:
-#                 cursor.execute("""
-#                     SELECT ConfigKey, ConfigValue 
-#                     FROM Configs 
-#                     WHERE ConfigKey IN ('TENANT_ID', 'CLIENT_ID', 'CLIENT_SECRET', 'SP_SITE_PATH', 'SP_EXCLUDE_PATHS', 'MODEL_DEPLOYMENT')
-#                 """)
-#                 rows = cursor.fetchall()
-#                 config_dict = {row.ConfigKey: row.ConfigValue for row in rows}
-#                 return (
-#                     config_dict.get('TENANT_ID', ""),
-#                     config_dict.get('CLIENT_ID', ""),
-#                     config_dict.get('CLIENT_SECRET', ""),
-#                     config_dict.get('SP_SITE_PATH', ""),
-#                     config_dict.get('SP_EXCLUDE_PATHS', ""),
-#                     config_dict.get('MODEL_DEPLOYMENT', "")
-#                 )
-#     except Exception as e:
-#         print(f"[SQL ERROR] Could not fetch configs in main.py: {e}")
-#         return "", "", "", "", ""
-
-# (TENANT_ID,
-#  CLIENT_ID,
-#  CLIENT_SECRET,
-#  SP_SITE_PATH,
-#  SP_EXCLUDE_PATHS,
-#  MODEL_DEPLOYMENT) = get_values_from_sql()
-
-# credential = ClientSecretCredential(
-#     tenant_id=TENANT_ID,
-#     client_id=CLIENT_ID,
-#     client_secret=CLIENT_SECRET
-# )
-
-# kv_client = SecretClient(vault_url=KEY_VAULT_URL, credential=credential)
-
-# def get_secret(name: str) -> str:
-#     return kv_client.get_secret(name).value
-
 ALLOWED_ORIGINS = get_secret("ALLOWED-ORIGINS") #KV
 
 app = FastAPI()
@@ -132,10 +83,8 @@ async def get_config():
     redirect_uri = ALLOWED_ORIGINS
     return {"redirectUri": redirect_uri}
 
-
 class ChatRequest(BaseModel):
     question: str
-
 
 @app.post("/chat")
 def chat(req: ChatRequest, authorization: str = Header(default=None)):
