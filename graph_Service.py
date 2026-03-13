@@ -168,8 +168,8 @@ def _build_sharepoint_scope_url() -> str:
 def list_user_sharepoint_files(user_graph_token: str, page_size: int, max_pages: int):
     if not user_graph_token:
         return []
-    _, _, _, sp_site_path, _ = SP_SITE_PATH  
-    # sp_site_path = SP_SITE_PATH
+    # _, _, _, sp_site_path, _ = SP_SITE_PATH  
+    sp_site_path = SP_SITE_PATH
     paths = [p.strip() for p in sp_site_path.split(",") if p.strip()]
     if not paths:
         paths = ["/Shared Documents"]  # fallback, agar user kuch na de
