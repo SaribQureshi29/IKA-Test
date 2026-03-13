@@ -1,4 +1,3 @@
-# config.py
 import os
 import pyodbc
 from azure.identity import ClientSecretCredential
