@@ -64,8 +64,8 @@ if not logger.handlers:
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 # --- Dynamic admin---
-_ADMIN_EMAIL = get_secret("ADMINEMAIL")
-_ADMIN_PASSWORD = get_secret("ADMINPASSWORDs")
+_ADMIN_EMAIL = get_secret("IKAADMINEMAIL")
+_ADMIN_PASSWORD = get_secret("IKAADMINPASSWORD")
 _ADMIN_SESSION_SECRET = ("ika_admin_session_secret").encode("utf-8") 
 
 
