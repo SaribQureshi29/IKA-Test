@@ -17,7 +17,7 @@ import pyodbc
 from variables import set_chat_payload
 from admin import router as admin_router
 from config import (get_secret, TENANT_ID, CLIENT_ID, CLIENT_SECRET,
-                    SP_SITE_PATH, SP_EXCLUDE_PATHS, MODEL_DEPLOYMENT)
+                    SP_SITE_PATH, SP_EXCLUDE_PATHS, MODEL_DEPLOYMENT) 
 
 ALLOWED_ORIGINS = get_secret("ALLOWED-ORIGINS") #KV
 
