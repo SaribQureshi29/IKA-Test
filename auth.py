@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from azure.identity import ClientSecretCredential
 from azure.keyvault.secrets import SecretClient
 import pyodbc
-from config import get_secret, TENANT_ID, CLIENT_ID, CLIENT_SECRET
+from config import get_secret, TENANT_ID, CLIENT_ID, CLIENT_SECRET 
 
 AUDIENCE     = get_secret("AUDIENCE") #KV
 REQUIRED_SCOPE = get_secret("REQUIRED-SCOPE") #KV
