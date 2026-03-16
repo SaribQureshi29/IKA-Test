@@ -1,7 +1,7 @@
 import os
 import pyodbc
 from azure.identity import ClientSecretCredential
-from azure.keyvault.secrets import SecretClient
+from azure.keyvault.secrets import SecretClient 
 
 # Step 1: Read bootstrap values from App Service Environment Variables
 TENANT_ID     = os.getenv("TENANT_ID")
