@@ -404,8 +404,8 @@ def _hash_password(password: str) -> str:
 
 
 # admin account
-_ADMIN_USERNAME = get_secret("ADMINFINANCEEMAIL")
-_ADMIN_PASSWORD = get_secret("ADMINFINANCEPW")
+_ADMIN_USERNAME = get_secret("ADMINEMAIL")
+_ADMIN_PASSWORD = get_secret("ADMINPASSWORD")
 
 def _seed_admin_if_needed():
     """Ensure ika admin user exists in Admin_Users (insert if missing, update password hash if present)."""
